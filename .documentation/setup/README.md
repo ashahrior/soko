@@ -104,7 +104,7 @@ tests/                    # Vitest test suite
 
 ## Build System
 
-Soko uses **Vite 8** with `vite-plugin-web-extension` for building. The `TARGET` env var selects the browser:
+Knots uses **Vite 8** with `vite-plugin-web-extension` for building. The `TARGET` env var selects the browser:
 
 ```bash
 TARGET=chrome vite build    # → dist-chrome/
@@ -127,7 +127,7 @@ Icons in `public/src/icons/` are copied as static assets to the build output. Th
 2. Enable **Developer mode** (top-right toggle)
 3. Click **Load unpacked**
 4. Select the `dist-chrome/` folder
-5. Pin the Soko icon in the toolbar
+5. Pin the Knots icon in the toolbar
 
 ### Firefox
 

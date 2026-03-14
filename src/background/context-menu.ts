@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 
-const MENU_ID = "soko-save-note";
+const MENU_ID = "knots-save-note";
 
 /** Register the context menu item (call once on install). */
 export function registerContextMenu(): void {

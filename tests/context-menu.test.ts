@@ -10,7 +10,7 @@ describe("context-menu", () => {
   it("registers a context menu item with correct properties", () => {
     registerContextMenu();
     expect(browser.contextMenus.create).toHaveBeenCalledWith({
-      id: "soko-save-note",
+      id: "knots-save-note",
       title: "Knots: Save Note",
       contexts: ["selection"],
     });
@@ -35,7 +35,7 @@ describe("context-menu", () => {
 
     const fakeTab = { id: 1, url: "https://example.com" };
     listener(
-      { menuItemId: "soko-save-note", selectionText: "some text" },
+      { menuItemId: "knots-save-note", selectionText: "some text" },
       fakeTab as any,
     );
 
@@ -66,7 +66,7 @@ describe("context-menu", () => {
       tab?: { id: number },
     ) => void;
 
-    listener({ menuItemId: "soko-save-note" }, { id: 1 } as any);
+    listener({ menuItemId: "knots-save-note" }, { id: 1 } as any);
     expect(callback).not.toHaveBeenCalled();
   });
 });

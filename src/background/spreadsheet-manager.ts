@@ -22,8 +22,8 @@ export async function getSheetName(): Promise<string> {
 }
 
 /**
- * Initialise the Soko spreadsheet:
- *  1. Search Drive for existing "Soko" spreadsheet
+ * Initialise the Knots spreadsheet:
+ *  1. Search Drive for existing "Knots" spreadsheet
  *  2. Create if not found
  *  3. Store spreadsheetId in local storage
  *  4. Ensure the target sheet exists with header + validation

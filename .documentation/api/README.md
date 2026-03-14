@@ -2,11 +2,11 @@
 
 ## Overview
 
-Soko communicates with two Google APIs via REST (no client libraries):
+Knots communicates with two Google APIs via REST (no client libraries):
 
 | API | Base URL | Purpose |
 |---|---|---|
-| Google Drive API v3 | `https://www.googleapis.com/drive/v3/files` | Search for existing "Soko" spreadsheet |
+| Google Drive API v3 | `https://www.googleapis.com/drive/v3/files` | Search for existing "Knots Sheets" spreadsheet |
 | Google Sheets API v4 | `https://sheets.googleapis.com/v4/spreadsheets` | All spreadsheet CRUD operations |
 
 All API calls go through `authenticatedFetch()` (see [Authentication](../authentication/README.md)), which handles token injection and 401 retry.
@@ -19,10 +19,10 @@ All API calls go through `authenticatedFetch()` (see [Authentication](../authent
 
 #### `searchDriveFile(name: string): Promise<{ id: string } | null>`
 
-Searches Drive for a spreadsheet with the given name. Used during `initSpreadsheet()` to find an existing "Soko" spreadsheet.
+Searches Drive for a spreadsheet with the given name. Used during `initSpreadsheet()` to find an existing "Knots Sheets" spreadsheet.
 
 ```
-GET /drive/v3/files?q=name='Soko' and mimeType='...' and trashed=false&fields=files(id,name)
+GET /drive/v3/files?q=name='Knots Sheets' and mimeType='...' and trashed=false&fields=files(id,name)
 ```
 
 **Security:** The `name` parameter is escaped via `escapeDriveQuery()` which handles backslash and single-quote injection.
@@ -130,13 +130,13 @@ Orchestrates the sheets-api functions for higher-level operations:
 | Function | Purpose |
 |---|---|
 | `getSheetName()` | Read target sheet name from storage (default: `"Default"`) |
-| `initSpreadsheet()` | Find-or-create the "Soko" spreadsheet, ensure sheet exists |
+| `initSpreadsheet()` | Find-or-create the "Knots Sheets" spreadsheet, ensure sheet exists |
 | `ensureSheet(ssId, name)` | Create sheet tab + header + validation if it doesn't exist |
 
 ### `initSpreadsheet()` Flow
 
 ```
 1. Already have spreadsheetId? → ensureSheet() → return
-2. searchDriveFile("Soko") → found? → store ID → ensureSheet() → return
-3. createSpreadsheet("Soko", sheetName) → store ID → writeHeader → setValidation → return
+2. searchDriveFile("Knots Sheets") → found? → store ID → ensureSheet() → return
+3. createSpreadsheet("Knots Sheets", sheetName) → store ID → writeHeader → setValidation → return
 ```

@@ -1,5 +1,5 @@
 /**
- * Shared type definitions for Soko extension messaging and storage.
+ * Shared type definitions for Knots extension messaging and storage.
  */
 
 /** Actions sent via chrome.runtime messages */

@@ -5,7 +5,7 @@
  * whether a hostname *ends with* `.${domain}` so subdomains are covered
  * automatically (e.g. `music.youtube.com` → "Video").
  *
- * Add new entries here to teach Soko about more sites.
+ * Add new entries here to teach Knots about more sites.
  */
 
 export const DOMAIN_CATEGORY_MAP: Readonly<Record<string, string>> = {

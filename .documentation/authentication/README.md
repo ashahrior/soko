@@ -2,7 +2,7 @@
 
 ## Overview
 
-Soko uses **OAuth 2.0 Implicit Flow** to authenticate with Google APIs. The implementation handles two distinct browser environments with completely different OAuth mechanisms.
+Knots uses **OAuth 2.0 Implicit Flow** to authenticate with Google APIs. The implementation handles two distinct browser environments with completely different OAuth mechanisms.
 
 ## Browser-Specific Auth Paths
 
@@ -21,7 +21,7 @@ Key characteristics:
 - Chrome stores tokens internally and can refresh them silently
 - `getAuthToken({ interactive: false })` returns a cached/refreshed token without UI
 - `removeCachedAuthToken()` is needed on logout to clear Chrome's internal cache
-- Token expiry is **not** provided by the API — Soko defaults to 1-hour expiry tracking
+- Token expiry is **not** provided by the API — Knots defaults to 1-hour expiry tracking
 
 ### Firefox
 

@@ -161,17 +161,17 @@ browser.runtime.onMessage.addListener(
       case "login":
         return (async () => {
           try {
-            console.log("[Soko] login: starting...");
+            console.log("[knots] login: starting...");
             const { email } = await login();
-            console.log("[Soko] login: success, email=", email);
+            console.log("[knots] login: success, email=", email);
             await initSpreadsheet();
-            console.log("[Soko] login: spreadsheet initialized");
+            console.log("[knots] login: spreadsheet initialized");
             await syncCache();
-            console.log("[Soko] login: cache synced");
+            console.log("[knots] login: cache synced");
             return { success: true, email };
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            console.error("[Soko] login error:", msg, err);
+            console.error("[knots] login error:", msg, err);
             return { success: false, error: msg };
           }
         })();

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Soko maintains a client-side URL cache for instant duplicate detection. This avoids a Google Sheets API call on every save attempt — lookups are O(1) against an in-memory `Set<string>`.
+Knots maintains a client-side URL cache for instant duplicate detection. This avoids a Google Sheets API call on every save attempt — lookups are O(1) against an in-memory `Set<string>`.
 
 ## Architecture
 

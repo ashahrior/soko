@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src/icons/icon-128.png" alt="Soko" width="96" height="96" />
+  <img src="src/icons/icon-128.png" alt="Knots" width="96" height="96" />
 </p>
 
-<h1 align="center">Soko</h1>
+<h1 align="center">Knots</h1>
 
 <p align="center">
   <strong>Save, categorize, and track web resources directly into a Google Spreadsheet.</strong>
@@ -17,12 +17,12 @@
 
 ---
 
-Soko is a browser extension that saves any webpage to a dedicated Google Spreadsheet with one click. It auto-categorizes pages, prevents duplicates via a local URL cache, and shows a badge indicator on previously saved pages.
+Knots is a browser extension that saves any webpage to a dedicated Google Spreadsheet with one click. It auto-categorizes pages, prevents duplicates via a local URL cache, and shows a badge indicator on previously saved pages.
 
 ## Features
 
 - **One-Click Save** — Click the toolbar icon to save the current page (title, URL, category, timestamp)
-- **Right-Click Save with Notes** — Highlight text, right-click → "Soko: Save Note" to save with annotations
+- **Right-Click Save with Notes** — Highlight text, right-click → "Knots: Save Note" to save with annotations
 - **Smart Categorization** — Automatically detects content type (Video, Article, Code, Q&A, Forum) based on the domain
 - **Duplicate Detection** — Instant client-side URL cache prevents saving the same page twice
 - **Peek Indicator** — Green ✓ badge on the toolbar icon when you visit an already-saved page
@@ -35,7 +35,7 @@ Soko is a browser extension that saves any webpage to a dedicated Google Spreads
 Click "Save" → Check cache for duplicates → Categorize URL → Append row to Google Sheets → Update badge
 ```
 
-Your data lives in a Google Spreadsheet called **"Soko"** with these columns:
+Your data lives in a Google Spreadsheet called **"Knots Sheets"** with these columns:
 
 | Date | Title | Link | Type | Notes | Status |
 |------|-------|------|------|-------|--------|
@@ -71,7 +71,7 @@ npm run build:firefox   # → dist-firefox/
 1. Open `chrome://extensions`
 2. Enable **Developer mode** (top-right)
 3. Click **Load unpacked** → select the `dist-chrome/` folder
-4. Pin the Soko icon in your toolbar
+4. Pin the Knots icon in your toolbar
 
 ### Install on Firefox
 
@@ -94,14 +94,14 @@ npm run build:firefox   # → dist-firefox/
 
 | Action | How |
 |---|---|
-| **Sign in** | Click Soko icon → **Sign in with Google** |
-| **Save a page** | Click Soko icon → **Save Current Page** |
-| **Save with notes** | Select text → right-click → **Soko: Save Note** |
-| **View spreadsheet** | Click Soko icon → **Open Soko Spreadsheet ↗** |
+| **Sign in** | Click Knots icon → **Sign in with Google** |
+| **Save a page** | Click Knots icon → **Save Current Page** |
+| **Save with notes** | Select text → right-click → **Knots: Save Note** |
+| **View spreadsheet** | Click Knots icon → **Open Knots Spreadsheet ↗** |
 | **Change target sheet** | Right-click icon → **Options** → set sheet name |
 | **Toggle categorization** | Options page → **Smart Categorization** toggle |
 | **Clear local cache** | Options page → **Clear Local Cache** |
-| **Sign out** | Click Soko icon → **Logout** |
+| **Sign out** | Click Knots icon → **Logout** |
 
 ## Tech Stack
 

@@ -1,8 +1,8 @@
-# CLAUDE.md — Soko Browser Extension
+# CLAUDE.md — Knots Browser Extension
 
 ## Project Overview
 
-Soko is a browser extension (Chrome MV3 + Firefox MV3) that saves web resources to a dedicated Google Spreadsheet with one click. It auto-categorizes pages, prevents duplicates via a local URL cache, and provides a visual "peek" indicator for previously saved pages.
+Knots is a browser extension (Chrome MV3 + Firefox MV3) that saves web resources to a dedicated Google Spreadsheet with one click. It auto-categorizes pages, prevents duplicates via a local URL cache, and provides a visual "peek" indicator for previously saved pages.
 
 ## Tech Stack
 
@@ -87,7 +87,7 @@ npx tsc --noEmit
 - Token + email stored in `chrome.storage.local`
 
 ### Data Flow (Save Pipeline)
-1. User clicks extension icon or right-clicks "Soko: Save Note"
+1. User clicks extension icon or right-clicks "Knots: Save Note"
 2. `handleSave()` in background checks URL cache for duplicates
 3. If new: categorize URL → build row → `appendRow()` to Google Sheets → update cache → send toast
 4. If duplicate: send "Already saved" toast
@@ -145,46 +145,46 @@ npm run build:firefox   # → dist-firefox/
 2. Enable **Developer mode** (toggle in the top-right)
 3. Click **Load unpacked**
 4. Select the `dist-chrome/` folder from your project
-5. The Soko icon appears in your toolbar — pin it for easy access
+5. The Knots icon appears in your toolbar — pin it for easy access
 
 ### Installing on Firefox
 
 1. Open `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on…**
 3. Select any file inside the `dist-firefox/` folder (e.g. `manifest.json`)
-4. The Soko icon appears in your toolbar
+4. The Knots icon appears in your toolbar
 
 > **Note:** Temporary add-ons in Firefox are removed when the browser closes. For persistent installation, package as `.xpi` and sign via [addons.mozilla.org](https://addons.mozilla.org/).
 
 ### Using the Extension
 
 #### Sign In
-- Click the Soko icon in the toolbar to open the popup
+- Click the Knots icon in the toolbar to open the popup
 - Click **Sign in with Google** and authorize with your Google account
-- On first login, Soko automatically creates a spreadsheet named **"Soko"** in your Google Drive with a **"Default"** sheet
+- On first login, Knots automatically creates a spreadsheet named **"Knots Sheets"** in your Google Drive with a **"Default"** sheet
 
 #### One-Click Save
-- Navigate to any webpage and click the Soko icon
+- Navigate to any webpage and click the Knots icon
 - Click **Save Current Page** — the page title, URL, category, and timestamp are written to your spreadsheet
 - A toast notification confirms the save on the webpage
 
 #### Right-Click Save with Notes
 - Highlight any text on a page
-- Right-click and select **Soko: Save Note**
+- Right-click and select **Knots: Save Note**
 - The page is saved with the selected text in the **Notes** column
 
 #### Peek Indicator
-- When you visit a page that's already saved, the Soko icon shows a green **✓** badge
+- When you visit a page that's already saved, the Knots icon shows a green **✓** badge
 - This lets you know at a glance which pages are in your spreadsheet
 
 #### Settings (Options Page)
-- Right-click the Soko icon → **Options** (or find it in `chrome://extensions`)
+- Right-click the Knots icon → **Options** (or find it in `chrome://extensions`)
 - **Default Sheet Name** — Change which sheet tab saves go to (a new sheet is created automatically if needed)
 - **Smart Categorization** — Toggle automatic type detection (Video, Article, Code, etc.) on or off
 - **Clear Local Cache** — Reset the local URL cache; use this if the badge indicator seems out of sync
 
 #### Open Your Spreadsheet
-- Click the Soko icon → **Open Soko Spreadsheet ↗** to jump directly to your Google Sheet
+- Click the Knots icon → **Open Knots Spreadsheet ↗** to jump directly to your Google Sheet
 
 #### Logout
-- Click the Soko icon → **Logout** to sign out and clear all local data
+- Click the Knots icon → **Logout** to sign out and clear all local data

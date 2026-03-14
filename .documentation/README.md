@@ -1,6 +1,6 @@
-# Soko — Documentation Index
+# Knots — Documentation Index
 
-Welcome to the Soko codebase documentation. This directory contains detailed technical documentation for all major subsystems in the extension.
+Welcome to the Knots codebase documentation. This directory contains detailed technical documentation for all major subsystems in the extension.
 
 ## Contents
 

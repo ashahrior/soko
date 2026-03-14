@@ -1,6 +1,6 @@
 # Google Cloud Console Setup
 
-Complete guide for configuring Google Cloud to work with the Soko browser extension.
+Complete guide for configuring Google Cloud to work with the Knots browser extension.
 
 ---
 
@@ -25,7 +25,7 @@ Complete guide for configuring Google Cloud to work with the Soko browser extens
 2. Click the **project dropdown** at the top-left (next to "Google Cloud")
 3. Click **New Project**
 4. Enter:
-   - **Project name:** `Soko` (or anything you prefer)
+   - **Project name:** `Knots` (or anything you prefer)
    - **Organization:** leave as default
 5. Click **Create**
 6. Wait a few seconds, then **select your new project** from the dropdown
@@ -42,10 +42,10 @@ Both APIs must be enabled for the extension to function:
 
 Verify both show as enabled under **APIs & Services → Enabled APIs & services**.
 
-| API | Purpose in Soko |
+| API | Purpose in Knots |
 |-----|----------------|
 | Google Sheets API v4 | Create spreadsheets, append rows, read columns, set validation |
-| Google Drive API v3 | Search for existing "Soko" spreadsheet in user's Drive |
+| Google Drive API v3 | Search for existing "Knots Sheets" spreadsheet in user's Drive |
 
 ## 3. Configure the OAuth Consent Screen
 
@@ -55,7 +55,7 @@ This **must** be configured before creating credentials.
 2. Click **Get started** (or **Configure consent screen**)
 3. Choose **External** user type → Click **Create**
 4. Fill in:
-   - **App name:** `Soko`
+   - **App name:** `Knots`
    - **User support email:** your email
    - **Developer contact email:** your email
 5. Click **Save and Continue**
@@ -81,10 +81,10 @@ https://www.googleapis.com/auth/drive.file
 
 > **Tip:** Use the filter/search box to find them quickly. Check both → Click **Update** → **Save and Continue**.
 
-| Scope | Access Level | Why Soko Needs It |
+| Scope | Access Level | Why Knots Needs It |
 |-------|-------------|-------------------|
-| `spreadsheets` | Read/write all spreadsheets | Create "Soko" spreadsheet, append saved pages, read URLs for cache sync |
-| `drive.file` | Only files the app created | Search for existing "Soko" spreadsheet (limited to app-created files) |
+| `spreadsheets` | Read/write all spreadsheets | Create "Knots Sheets" spreadsheet, append saved pages, read URLs for cache sync |
+| `drive.file` | Only files the app created | Search for existing "Knots Sheets" spreadsheet (limited to app-created files) |
 
 ### Adding Test Users
 
@@ -103,7 +103,7 @@ On the **Test users** screen:
 2. Click **Create Credentials → OAuth client ID**
 3. Set:
    - **Application type:** `Chrome Extension`
-   - **Name:** `Soko Chrome`
+   - **Name:** `Knots Chrome`
    - **Item ID:** your extension's ID (see [Step 5](#5-get-your-extension-id))
 4. Click **Create**
 5. Copy the **Client ID** — it looks like:
@@ -116,7 +116,7 @@ On the **Test users** screen:
 1. Still on **Credentials**, click **Create Credentials → OAuth client ID** again
 2. Set:
    - **Application type:** `Web application`
-   - **Name:** `Soko Firefox`
+   - **Name:** `Knots Firefox`
 3. Under **Authorized redirect URIs**, click **Add URI**
 4. Get your redirect URI by running this in the extension's background console:
    ```javascript
@@ -155,10 +155,10 @@ The extension ID is assigned by Chrome when you **load** the extension — it's 
 5. The extension appears as a card. The **ID** is the 32-character string below the name:
    ```
    ┌─────────────────────────────────────────────────┐
-   │  Soko                                    1.0.0  │
+   │  Knots                                   1.0.0  │
    │  Save web resources to Google Sheets...         │
    │                                                 │
-   │  ID: abcdefghijklmnopqrstuvwxyzabcdef  ← THIS  │
+   │  ID: abcdefghijklmnopqrstuvwxyzabcdef  ← THIS   │
    │  Inspect views: service worker                  │
    └─────────────────────────────────────────────────┘
    ```
@@ -247,7 +247,7 @@ grep client_id dist-chrome/manifest.json
 
 2. Zip the output:
    ```bash
-   cd dist-chrome && zip -r ../soko-chrome.zip . && cd ..
+   cd dist-chrome && zip -r ../knots-chrome.zip . && cd ..
    ```
 
 3. Upload to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)

@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 
-const TOAST_ID = "soko-toast";
+const TOAST_ID = "knots-toast";
 const TOAST_DURATION = 2500;
 const FADE_DURATION = 300;
 

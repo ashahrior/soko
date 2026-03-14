@@ -1,6 +1,6 @@
 # Data Flow
 
-This document traces the end-to-end flow of every major user action in Soko.
+This document traces the end-to-end flow of every major user action in Knots.
 
 ## 1. One-Click Save
 
@@ -35,7 +35,7 @@ handleSave(tab):
 ## 2. Right-Click Save with Note
 
 ```
-User selects text on page → right-clicks → selects "Soko: Save Note"
+User selects text on page → right-clicks → selects "Knots: Save Note"
                   │
                   ▼
 browser.contextMenus.onClicked fires
@@ -65,8 +65,8 @@ Store accessToken + tokenExpiresAt + userEmail in chrome.storage.local
                   ▼
 initSpreadsheet()
   1. Check storage for existing spreadsheetId
-  2. If none: searchDriveFile("Soko") via Drive API
-  3. If none found: createSpreadsheet("Soko", "Default") via Sheets API
+  2. If none: searchDriveFile("Knots Sheets") via Drive API
+  3. If none found: createSpreadsheet("Knots Sheets", "Default") via Sheets API
   4. ensureSheet() → write header row + set status validation
   5. Store spreadsheetId
                   │

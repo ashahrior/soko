@@ -2,7 +2,7 @@
 
 ## High-Level Design
 
-Soko is a Manifest V3 browser extension with four execution contexts:
+Knots is a Manifest V3 browser extension with four execution contexts:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -52,7 +52,7 @@ The *only* context with full API access. Runs as an event-driven service worker 
 | `spreadsheet-manager.ts` | Spreadsheet initialization, sheet creation, header/validation setup |
 | `cache-manager.ts` | In-memory `Set<string>` URL cache with `chrome.storage.local` persistence |
 | `categorizer.ts` | Pure function mapping domain → content type (Video, Article, Code, etc.) |
-| `context-menu.ts` | Right-click "Soko: Save Note" registration and handler |
+| `context-menu.ts` | Right-click "Knots: Save Note" registration and handler |
 
 ### 2. Popup (`src/popup/`)
 
