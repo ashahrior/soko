@@ -40,7 +40,7 @@
     "open_in_tab": true
   },
   "oauth2": {
-    "client_id": "__VITE_GOOGLE_CLIENT_ID__",
+    "client_id": "567602922983-efgjavusvpivirl62soqvlavvd4n6h7d.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/spreadsheets",
       "https://www.googleapis.com/auth/drive.file"
@@ -51,5 +51,6 @@
       "id": "soko@extension.local",
       "strict_min_version": "109.0"
     }
-  }
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn4TAs0tBGjv0EB4pcdv5nXysPfC31fho0fYKGZMNOV1mMmLMMIdow0Wn4CNAVsZ5gb6/unQxXeMMk23Qf5l4EJZpjgpj6XOgALyb1v0Wu21tBuQriemgqqkoaKKiHvtu0vVrvKwTkQ0+ZmGuD5k7eK6OEaNYwhaPDq3m9LEK/fl27Widno5qKtZPeyoClYLcUkNPSSA6Q68Uy6GIxeBWMD5fPgdWlF5LFCmerjWhuAnm5F0Jg/rreGI9JNj7lbNX594pFFL+0LUgSvjzalk1PWFRkjBdVnz5suWqXXLGAWbzocN1uiP7aLlZOLSusWVKP7x2Ni+t4a1jEVpQVpbr6wIDAQAB"
 }

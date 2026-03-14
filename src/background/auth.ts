@@ -3,8 +3,8 @@ import type { StorageSchema } from "../shared/types";
 
 const GOOGLE_TOKEN_REVOKE_URL = "https://accounts.google.com/o/oauth2/revoke";
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
-const GOOGLE_USERINFO_URL =
-  "https://www.googleapis.com/oauth2/v2/userinfo";
+// tokeninfo doesn't require extra scopes — works with any valid token
+const GOOGLE_TOKENINFO_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo";
 const SCOPES = [
   "https://www.googleapis.com/auth/spreadsheets",
   "https://www.googleapis.com/auth/drive.file",
@@ -96,6 +96,14 @@ export async function getValidToken(): Promise<string> {
     if (data.accessToken) return data.accessToken;
   }
 
+  // Clear stale Chrome cached token before attempting silent refresh
+  if (isChrome()) {
+    const data = (await browser.storage.local.get("accessToken")) as StorageSchema;
+    if (data.accessToken) {
+      chrome.identity.removeCachedAuthToken({ token: data.accessToken }, () => {});
+    }
+  }
+
   // Try non-interactive refresh first (Chrome can do this silently)
   try {
     const token = await getToken(/* interactive */ false);
@@ -128,7 +136,18 @@ async function persistToken(token: string): Promise<void> {
 
 /** Persist token & user email after login. */
 export async function login(): Promise<{ email: string; token: string }> {
-  const token = await getToken(/* interactive */ true);
+  // For Chrome: always clear any cached token first to force a fresh one.
+  // This prevents Chrome from returning a stale/revoked token.
+  if (isChrome()) {
+    const stored = (await browser.storage.local.get("accessToken")) as StorageSchema;
+    if (stored.accessToken) {
+      await new Promise<void>((resolve) => {
+        chrome.identity.removeCachedAuthToken({ token: stored.accessToken! }, () => resolve());
+      });
+    }
+  }
+
+  let token = await getToken(/* interactive */ true);
 
   // For Chrome: set a default expiry since getAuthToken doesn't provide one
   if (isChrome()) {
@@ -143,18 +162,25 @@ export async function login(): Promise<{ email: string; token: string }> {
     } satisfies Partial<StorageSchema>);
   }
 
-  // Fetch user email
-  const res = await fetch(GOOGLE_USERINFO_URL, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to fetch user info");
-  const info = (await res.json()) as { email: string };
+  // Fetch user email via tokeninfo (no extra scope needed)
+  let email = "";
+  try {
+    const res = await fetch(`${GOOGLE_TOKENINFO_URL}?access_token=${token}`);
+    if (res.ok) {
+      const info = (await res.json()) as { email?: string };
+      email = info.email ?? "";
+    } else {
+      console.warn("Could not fetch token info:", res.status);
+    }
+  } catch (err) {
+    console.warn("Token info request failed:", err);
+  }
 
   await browser.storage.local.set({
-    userEmail: info.email,
+    userEmail: email,
   } satisfies Partial<StorageSchema>);
 
-  return { email: info.email, token };
+  return { email, token };
 }
 
 /** Revoke token & clear all auth/session storage. */

@@ -13,6 +13,18 @@ function showView(view: "logged-out" | "logged-in" | "loading") {
   loggedOutEl.classList.toggle("hidden", view !== "logged-out");
   loggedInEl.classList.toggle("hidden", view !== "logged-in");
   statusEl.classList.toggle("hidden", view !== "loading");
+  // Clear status text when not loading
+  if (view !== "loading") {
+    statusEl.textContent = "";
+  }
+}
+
+function showError(message: string) {
+  loggedOutEl.classList.remove("hidden");
+  loggedInEl.classList.add("hidden");
+  statusEl.classList.remove("hidden");
+  statusEl.textContent = message;
+  statusEl.classList.add("text-red-400");
 }
 
 async function loadStatus() {
@@ -22,8 +34,8 @@ async function loadStatus() {
     action: "getStatus",
   })) as { loggedIn: boolean; email: string | null; spreadsheetId: string | null };
 
-  if (res.loggedIn && res.email) {
-    emailEl.textContent = res.email;
+  if (res.loggedIn) {
+    emailEl.textContent = res.email || "Signed in";
     if (res.spreadsheetId && /^[a-zA-Z0-9_-]+$/.test(res.spreadsheetId)) {
       linkSheetEl.href = `https://docs.google.com/spreadsheets/d/${res.spreadsheetId}`;
     }
@@ -37,10 +49,22 @@ btnLogin.addEventListener("click", async () => {
   showView("loading");
   statusEl.textContent = "Signing in…";
   try {
-    await browser.runtime.sendMessage({ action: "login" });
-    await loadStatus();
+    const res = await browser.runtime.sendMessage({ action: "login" });
+    console.log("Login response:", JSON.stringify(res));
+
+    if (!res) {
+      showError("Error: No response from background (res is undefined/null)");
+      return;
+    }
+
+    if (res.success) {
+      await loadStatus();
+    } else {
+      showError(`Error: ${res.error ?? "Login failed (no error detail)"}`);
+    }
   } catch (err) {
-    statusEl.textContent = `Error: ${(err as Error).message}`;
+    console.error("Login catch:", err);
+    showError(`Catch: ${String(err)}`);
   }
 });
 

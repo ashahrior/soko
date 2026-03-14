@@ -13,6 +13,7 @@ Welcome to the Soko codebase documentation. This directory contains detailed tec
 | [api/](api/) | Google Sheets & Drive API wrapper documentation |
 | [testing/](testing/) | Test strategy, mocking approach, and how to write tests |
 | [setup/](setup/) | Developer onboarding, build system, and environment setup |
+| [google-setup/](google-setup/) | Google Cloud Console setup, OAuth credentials, and Client ID configuration |
 
 ## Quick Start
 

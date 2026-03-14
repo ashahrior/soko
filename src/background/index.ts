@@ -152,10 +152,20 @@ browser.runtime.onMessage.addListener(
 
       case "login":
         return (async () => {
-          const { email } = await login();
-          await initSpreadsheet();
-          await syncCache();
-          return { success: true, email };
+          try {
+            console.log("[Soko] login: starting...");
+            const { email } = await login();
+            console.log("[Soko] login: success, email=", email);
+            await initSpreadsheet();
+            console.log("[Soko] login: spreadsheet initialized");
+            await syncCache();
+            console.log("[Soko] login: cache synced");
+            return { success: true, email };
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.error("[Soko] login error:", msg, err);
+            return { success: false, error: msg };
+          }
         })();
 
       case "logout":
@@ -169,10 +179,11 @@ browser.runtime.onMessage.addListener(
           const data = (await browser.storage.local.get([
             "userEmail",
             "spreadsheetId",
+            "accessToken",
           ])) as StorageSchema;
-          const tokenValid = await isTokenValid();
+          const tokenValid = !!data.accessToken && await isTokenValid();
           return {
-            loggedIn: !!data.userEmail && tokenValid,
+            loggedIn: tokenValid,
             email: data.userEmail ?? null,
             spreadsheetId: data.spreadsheetId ?? null,
           };
