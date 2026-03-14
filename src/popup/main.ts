@@ -8,6 +8,7 @@ const linkSheetEl = document.getElementById("link-sheet") as HTMLAnchorElement;
 const btnLogin = document.getElementById("btn-login")!;
 const btnSave = document.getElementById("btn-save")!;
 const btnLogout = document.getElementById("btn-logout")!;
+const btnSettings = document.getElementById("btn-settings")!;
 
 function showView(view: "logged-out" | "logged-in" | "loading") {
   loggedOutEl.classList.toggle("hidden", view !== "logged-out");
@@ -90,6 +91,10 @@ btnSave.addEventListener("click", async () => {
 btnLogout.addEventListener("click", async () => {
   await browser.runtime.sendMessage({ action: "logout" });
   showView("logged-out");
+});
+
+btnSettings.addEventListener("click", () => {
+  browser.runtime.openOptionsPage();
 });
 
 loadStatus();
