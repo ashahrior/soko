@@ -21,48 +21,116 @@
 
     <!-- Logged-in state -->
     <div id="logged-in" class="hidden flex flex-col gap-3">
-      <div class="flex items-center justify-between">
-        <h1 class="text-lg font-bold tracking-tight">Soko</h1>
+      <!-- Main view -->
+      <div id="view-main" class="flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <h1 class="text-lg font-bold tracking-tight">Soko</h1>
+          <div class="flex items-center gap-2">
+            <span id="user-email" class="text-xs text-gray-400 truncate max-w-[140px]"></span>
+            <button
+              id="btn-settings"
+              title="Settings"
+              class="text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button
+          id="btn-save"
+          class="w-full bg-green-600 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
+        >
+          Save Current Page
+        </button>
+
+        <a
+          id="link-sheet"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block text-center text-sm text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          Open Soko Spreadsheet ↗
+        </a>
+
+        <hr class="border-gray-800" />
+
+        <button
+          id="btn-logout"
+          class="w-full text-sm text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+        >
+          Logout
+        </button>
+      </div>
+
+      <!-- Settings view -->
+      <div id="view-settings" class="hidden flex flex-col gap-4">
         <div class="flex items-center gap-2">
-          <span id="user-email" class="text-xs text-gray-400 truncate max-w-[140px]"></span>
           <button
-            id="btn-settings"
-            title="Settings"
+            id="btn-back"
+            title="Back"
             class="text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-              <circle cx="12" cy="12" r="3"/>
+              <path d="m15 18-6-6 6-6"/>
             </svg>
           </button>
+          <h2 class="text-lg font-bold tracking-tight">Settings</h2>
+        </div>
+
+        <!-- Sheet Name -->
+        <div>
+          <label for="sheet-name" class="block text-xs font-medium text-gray-300 mb-1">
+            Default Sheet Name
+          </label>
+          <div class="flex gap-2">
+            <input
+              id="sheet-name"
+              type="text"
+              placeholder="Default"
+              class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              id="btn-save-sheet"
+              class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+            >
+              Save
+            </button>
+          </div>
+          <p id="sheet-status" class="text-xs text-gray-500 mt-1"></p>
+        </div>
+
+        <!-- Smart Categorization -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xs font-medium text-gray-300">Smart Categorization</h3>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Auto-detect content type
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input id="toggle-smart" type="checkbox" class="sr-only peer" checked />
+            <div
+              class="w-9 h-5 bg-gray-700 rounded-full peer peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-500 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"
+            ></div>
+          </label>
+        </div>
+
+        <!-- Clear Cache -->
+        <div>
+          <button
+            id="btn-clear-cache"
+            class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+          >
+            Clear Local Cache
+          </button>
+          <p id="cache-status" class="text-xs text-gray-500 mt-1"></p>
         </div>
       </div>
-
-      <button
-        id="btn-save"
-        class="w-full bg-green-600 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
-      >
-        Save Current Page
-      </button>
-
-      <a
-        id="link-sheet"
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="block text-center text-sm text-blue-400 hover:text-blue-300 transition-colors"
-      >
-        Open Soko Spreadsheet ↗
-      </a>
-
-      <hr class="border-gray-800" />
-
-      <button
-        id="btn-logout"
-        class="w-full text-sm text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
-      >
-        Logout
-      </button>
     </div>
 
     <!-- Loading / status -->
