@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soko — Settings</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="min-h-screen bg-gray-950 text-gray-100 font-sans">
+    <div class="max-w-lg mx-auto py-12 px-6">
+      <h1 class="text-2xl font-bold tracking-tight mb-8">Soko Settings</h1>
+
+      <!-- Sheet Name -->
+      <section class="mb-8">
+        <label for="sheet-name" class="block text-sm font-medium text-gray-300 mb-2">
+          Default Sheet Name
+        </label>
+        <div class="flex gap-2">
+          <input
+            id="sheet-name"
+            type="text"
+            placeholder="Default"
+            class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            id="btn-save-sheet"
+            class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors cursor-pointer"
+          >
+            Save
+          </button>
+        </div>
+        <p id="sheet-status" class="text-xs text-gray-500 mt-1"></p>
+      </section>
+
+      <!-- Smart Categorization -->
+      <section class="mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-medium text-gray-300">Smart Categorization</h2>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Auto-detect content type (Video, Article, Code, etc.)
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input id="toggle-smart" type="checkbox" class="sr-only peer" checked />
+            <div
+              class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-500 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"
+            ></div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Clear Cache -->
+      <section class="mb-8">
+        <h2 class="text-sm font-medium text-gray-300 mb-2">Cache</h2>
+        <button
+          id="btn-clear-cache"
+          class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-sm px-4 py-2 rounded-lg transition-colors cursor-pointer"
+        >
+          Clear Local Cache
+        </button>
+        <p id="cache-status" class="text-xs text-gray-500 mt-1"></p>
+      </section>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

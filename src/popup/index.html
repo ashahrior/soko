@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soko</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="w-80 bg-gray-950 text-gray-100 p-4 font-sans">
+    <!-- Logged-out state -->
+    <div id="logged-out" class="hidden flex flex-col items-center gap-4 py-6">
+      <h1 class="text-xl font-bold tracking-tight">Soko</h1>
+      <p class="text-sm text-gray-400">Save pages to Google Sheets</p>
+      <button
+        id="btn-login"
+        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
+      >
+        Sign in with Google
+      </button>
+    </div>
+
+    <!-- Logged-in state -->
+    <div id="logged-in" class="hidden flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h1 class="text-lg font-bold tracking-tight">Soko</h1>
+        <span id="user-email" class="text-xs text-gray-400 truncate max-w-[160px]"></span>
+      </div>
+
+      <button
+        id="btn-save"
+        class="w-full bg-green-600 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
+      >
+        Save Current Page
+      </button>
+
+      <a
+        id="link-sheet"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="block text-center text-sm text-blue-400 hover:text-blue-300 transition-colors"
+      >
+        Open Soko Spreadsheet ↗
+      </a>
+
+      <hr class="border-gray-800" />
+
+      <button
+        id="btn-logout"
+        class="w-full text-sm text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+      >
+        Logout
+      </button>
+    </div>
+
+    <!-- Loading / status -->
+    <div id="status" class="hidden text-center text-sm text-gray-400 py-6">
+      Loading…
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "soko",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser extension for saving web resources to Google Sheets",
+  "type": "module",
+  "scripts": {
+    "dev:chrome": "TARGET=chrome vite build --watch --mode development",
+    "dev:firefox": "TARGET=firefox vite build --watch --mode development",
+    "build:chrome": "TARGET=chrome vite build",
+    "build:firefox": "TARGET=firefox vite build",
+    "build": "npm run build:chrome && npm run build:firefox",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "@types/webextension-polyfill": "^0.12.5",
+    "chrome-types": "^0.1.423",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0",
+    "vite-plugin-web-extension": "^4.5.0",
+    "vitest": "^4.1.0",
+    "webextension-polyfill": "^0.12.0"
+  }
+}

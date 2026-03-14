@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Soko",
+  "version": "1.0.0",
+  "description": "Save, categorize, and track web resources directly into a Google Spreadsheet.",
+  "permissions": ["identity", "activeTab", "storage", "contextMenus", "tabs"],
+  "host_permissions": [
+    "https://sheets.googleapis.com/*",
+    "https://www.googleapis.com/*",
+    "https://drive.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/toast.ts"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_icon": {
+      "16": "src/icons/icon-16.png",
+      "32": "src/icons/icon-32.png",
+      "48": "src/icons/icon-48.png",
+      "128": "src/icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "src/icons/icon-16.png",
+    "32": "src/icons/icon-32.png",
+    "48": "src/icons/icon-48.png",
+    "128": "src/icons/icon-128.png"
+  },
+  "options_ui": {
+    "page": "src/options/index.html",
+    "open_in_tab": true
+  },
+  "oauth2": {
+    "client_id": "__VITE_GOOGLE_CLIENT_ID__",
+    "scopes": [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive.file"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "soko@extension.local",
+      "strict_min_version": "109.0"
+    }
+  }
+}
