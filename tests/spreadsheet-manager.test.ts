@@ -11,6 +11,7 @@ vi.mock("../src/background/sheets-api", async (importOriginal) => {
     getSheetNames: vi.fn(),
     addSheet: vi.fn(),
     updateRange: vi.fn(),
+    formatHeaderRow: vi.fn(),
     setDataValidation: vi.fn(),
   };
 });
@@ -77,6 +78,7 @@ describe("spreadsheet-manager", () => {
         "'Default'!A1:F1",
         [["Date", "Title", "Link", "Type", "Notes", "Status"]],
       );
+      expect(sheetsApi.formatHeaderRow).toHaveBeenCalledWith("new-id", 0);
       expect(sheetsApi.setDataValidation).toHaveBeenCalledWith(
         "new-id",
         0,
@@ -109,6 +111,7 @@ describe("spreadsheet-manager", () => {
         "'NewSheet'!A1:F1",
         [["Date", "Title", "Link", "Type", "Notes", "Status"]],
       );
+      expect(sheetsApi.formatHeaderRow).toHaveBeenCalledWith("ss-id", 42);
       expect(sheetsApi.setDataValidation).toHaveBeenCalledWith(
         "ss-id",
         42,

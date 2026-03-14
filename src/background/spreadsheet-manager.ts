@@ -7,6 +7,7 @@ import {
   addSheet,
   updateRange,
   setDataValidation,
+  formatHeaderRow,
   escapeSheetName,
 } from "./sheets-api";
 
@@ -56,6 +57,9 @@ export async function initSpreadsheet(): Promise<string> {
   // Write header row
   await updateRange(spreadsheetId, `'${escapeSheetName(sheetName)}'!A1:F1`, [HEADER_ROW]);
 
+  // Format header: bold white text on dark blue, frozen
+  await formatHeaderRow(spreadsheetId, sheetId);
+
   // Set status column validation (column index 5 = F)
   await setDataValidation(spreadsheetId, sheetId, 5, STATUS_OPTIONS);
 
@@ -76,5 +80,6 @@ export async function ensureSheet(
 
   const sheetId = await addSheet(ssId, name);
   await updateRange(ssId, `'${escapeSheetName(name)}'!A1:F1`, [HEADER_ROW]);
+  await formatHeaderRow(ssId, sheetId);
   await setDataValidation(ssId, sheetId, 5, STATUS_OPTIONS);
 }

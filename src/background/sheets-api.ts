@@ -97,7 +97,7 @@ export async function appendRow(
 ): Promise<void> {
   const range = encodeURIComponent(`'${escapeSheetName(sheet)}'!A:F`);
   const res = await authenticatedFetch(
-    `${SHEETS_BASE}/${ssId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    `${SHEETS_BASE}/${ssId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=OVERWRITE`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -139,6 +139,63 @@ export async function readColumn(
   const data = (await res.json()) as { values?: string[][] };
   // Flatten + skip header row
   return (data.values ?? []).slice(1).map((row) => row[0] ?? "");
+}
+
+/** Format the header row: bold white text on dark blue background, frozen. */
+export async function formatHeaderRow(
+  ssId: string,
+  sheetId: number,
+): Promise<void> {
+  const body = {
+    requests: [
+      // Bold white text on dark blue background
+      {
+        repeatCell: {
+          range: {
+            sheetId,
+            startRowIndex: 0,
+            endRowIndex: 1,
+          },
+          cell: {
+            userEnteredFormat: {
+              backgroundColor: {
+                red: 0.102,
+                green: 0.137,
+                blue: 0.494,
+              },
+              textFormat: {
+                bold: true,
+                foregroundColor: {
+                  red: 1,
+                  green: 1,
+                  blue: 1,
+                },
+              },
+            },
+          },
+          fields: "userEnteredFormat(backgroundColor,textFormat)",
+        },
+      },
+      // Freeze header row
+      {
+        updateSheetProperties: {
+          properties: {
+            sheetId,
+            gridProperties: {
+              frozenRowCount: 1,
+            },
+          },
+          fields: "gridProperties.frozenRowCount",
+        },
+      },
+    ],
+  };
+  const res = await authenticatedFetch(`${SHEETS_BASE}/${ssId}:batchUpdate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Format header failed: ${res.status}`);
 }
 
 /** Set data validation (dropdown) on a column. */
