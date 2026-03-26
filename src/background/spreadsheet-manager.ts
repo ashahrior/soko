@@ -7,6 +7,7 @@ import {
   addSheet,
   updateRange,
   setDataValidation,
+  setConditionalFormatting,
   formatHeaderRow,
   escapeSheetName,
 } from "./sheets-api";
@@ -63,6 +64,9 @@ export async function initSpreadsheet(): Promise<string> {
   // Set status column validation (column index 5 = F)
   await setDataValidation(spreadsheetId, sheetId, 5, STATUS_OPTIONS);
 
+  // Conditional formatting: colour rows by status value
+  await setConditionalFormatting(spreadsheetId, sheetId, 5, STATUS_OPTIONS);
+
   return spreadsheetId;
 }
 
@@ -76,10 +80,15 @@ export async function ensureSheet(
 ): Promise<void> {
   const sheets = await getSheetNames(ssId);
   const found = sheets.find((s) => s.title === name);
-  if (found) return; // already exists
+  if (found) {
+    // Sheet exists — ensure conditional formatting is applied (idempotent)
+    await setConditionalFormatting(ssId, found.sheetId, 5, STATUS_OPTIONS);
+    return;
+  }
 
   const sheetId = await addSheet(ssId, name);
   await updateRange(ssId, `'${escapeSheetName(name)}'!A1:F1`, [HEADER_ROW]);
   await formatHeaderRow(ssId, sheetId);
   await setDataValidation(ssId, sheetId, 5, STATUS_OPTIONS);
+  await setConditionalFormatting(ssId, sheetId, 5, STATUS_OPTIONS);
 }

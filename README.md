@@ -52,8 +52,8 @@ Your data lives in a Google Spreadsheet called **"Knots Sheets"** with these col
 ### Build
 
 ```bash
-git clone https://github.com/your-username/pincer.git
-cd pincer
+git clone https://github.com/your-username/knots.git
+cd knots
 npm install
 
 # Create .env from the example and add your Google Client ID

@@ -125,6 +125,28 @@ export async function updateRange(
   if (!res.ok) throw new Error(`Update range failed: ${res.status}`);
 }
 
+/** Find a row by URL in column C and return its 1-based row number and current status. */
+export async function findRowByUrl(
+  ssId: string,
+  sheet: string,
+  url: string,
+): Promise<{ rowNumber: number; status: string } | null> {
+  const range = encodeURIComponent(`'${escapeSheetName(sheet)}'!C:F`);
+  const res = await authenticatedFetch(
+    `${SHEETS_BASE}/${ssId}/values/${range}`,
+  );
+  if (!res.ok) throw new Error(`Read range failed: ${res.status}`);
+  const data = (await res.json()) as { values?: string[][] };
+  const rows = data.values ?? [];
+  // Skip header (index 0); column C is index 0 in range, Status (F) is index 3
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] === url) {
+      return { rowNumber: i + 1, status: rows[i][3] ?? "Todo" };
+    }
+  }
+  return null;
+}
+
 /** Read a single column (used for URL cache sync). */
 export async function readColumn(
   ssId: string,
@@ -233,4 +255,96 @@ export async function setDataValidation(
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`Set validation failed: ${res.status}`);
+}
+
+/**
+ * Add conditional formatting rules for the Status column.
+ * Idempotent: deletes any existing conditional format rules on the sheet first.
+ * - "Todo"        → light grey background (columns A through Status)
+ * - "In progress" → light red background
+ * - "Done"        → light green background
+ */
+export async function setConditionalFormatting(
+  ssId: string,
+  sheetId: number,
+  statusColumnIndex: number,
+  statusOptions: string[],
+): Promise<void> {
+  // Map status values to background colours
+  const colorMap: Record<string, { red: number; green: number; blue: number }> = {
+    Todo:          { red: 0.85, green: 0.85, blue: 0.85 },
+    "In progress": { red: 0.96, green: 0.80, blue: 0.80 },
+    Done:          { red: 0.85, green: 0.94, blue: 0.85 },
+  };
+
+  // ── 1. Fetch existing conditional format rules so we can clear them ──
+  const metaRes = await authenticatedFetch(
+    `${SHEETS_BASE}/${ssId}?fields=sheets(properties.sheetId,conditionalFormats)`,
+  );
+  if (!metaRes.ok) throw new Error(`Fetch sheet metadata failed: ${metaRes.status}`);
+  const meta = (await metaRes.json()) as {
+    sheets: {
+      properties: { sheetId: number };
+      conditionalFormats?: unknown[];
+    }[];
+  };
+  const targetSheet = meta.sheets.find((s) => s.properties.sheetId === sheetId);
+  const existingCount = targetSheet?.conditionalFormats?.length ?? 0;
+
+  // Build delete requests (in reverse index order to avoid shifting)
+  const deleteRequests = Array.from({ length: existingCount }, (_, i) => ({
+    deleteConditionalFormatRule: {
+      sheetId,
+      index: existingCount - 1 - i,
+    },
+  }));
+
+  // ── 2. Build add requests ──
+  const statusColLetter = String.fromCharCode(65 + statusColumnIndex);
+
+  const addRequests = statusOptions
+    .map((status, index) => {
+      const bg = colorMap[status];
+      if (!bg) return null;
+      return {
+        addConditionalFormatRule: {
+          rule: {
+            ranges: [
+              {
+                sheetId,
+                startRowIndex: 1,
+                startColumnIndex: 0,
+                endColumnIndex: statusColumnIndex + 1,
+              },
+            ],
+            booleanRule: {
+              condition: {
+                type: "CUSTOM_FORMULA" as const,
+                values: [
+                  {
+                    userEnteredValue: `=$${statusColLetter}2="${status}"`,
+                  },
+                ],
+              },
+              format: {
+                backgroundColor: bg,
+              },
+            },
+          },
+          index,
+        },
+      };
+    })
+    .filter(Boolean);
+
+  if (addRequests.length === 0) return;
+
+  // ── 3. Send deletes + adds in a single batchUpdate ──
+  const body = { requests: [...deleteRequests, ...addRequests] };
+  const res = await authenticatedFetch(`${SHEETS_BASE}/${ssId}:batchUpdate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Set conditional formatting failed: ${res.status}`);
 }

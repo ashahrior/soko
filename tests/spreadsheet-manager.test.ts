@@ -13,6 +13,7 @@ vi.mock("../src/background/sheets-api", async (importOriginal) => {
     updateRange: vi.fn(),
     formatHeaderRow: vi.fn(),
     setDataValidation: vi.fn(),
+    setConditionalFormatting: vi.fn(),
   };
 });
 
@@ -85,17 +86,29 @@ describe("spreadsheet-manager", () => {
         5,
         ["Todo", "In progress", "Done"],
       );
+      expect(sheetsApi.setConditionalFormatting).toHaveBeenCalledWith(
+        "new-id",
+        0,
+        5,
+        ["Todo", "In progress", "Done"],
+      );
     });
   });
 
   describe("ensureSheet", () => {
-    it("does nothing if sheet already exists", async () => {
+    it("applies conditional formatting if sheet already exists", async () => {
       vi.mocked(sheetsApi.getSheetNames).mockResolvedValue([
         { title: "MySheet", sheetId: 1 },
       ]);
 
       await ensureSheet("ss-id", "MySheet");
       expect(sheetsApi.addSheet).not.toHaveBeenCalled();
+      expect(sheetsApi.setConditionalFormatting).toHaveBeenCalledWith(
+        "ss-id",
+        1,
+        5,
+        ["Todo", "In progress", "Done"],
+      );
     });
 
     it("creates sheet if not found", async () => {
@@ -113,6 +126,12 @@ describe("spreadsheet-manager", () => {
       );
       expect(sheetsApi.formatHeaderRow).toHaveBeenCalledWith("ss-id", 42);
       expect(sheetsApi.setDataValidation).toHaveBeenCalledWith(
+        "ss-id",
+        42,
+        5,
+        ["Todo", "In progress", "Done"],
+      );
+      expect(sheetsApi.setConditionalFormatting).toHaveBeenCalledWith(
         "ss-id",
         42,
         5,

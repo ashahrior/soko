@@ -15,6 +15,15 @@ const viewMain = document.getElementById("view-main")!;
 const viewSettings = document.getElementById("view-settings")!;
 const btnBack = document.getElementById("btn-back")!;
 
+// ─── Saved-page action elements ─────────────────────────────────────────────
+const savedActionsEl = document.getElementById("saved-actions")!;
+const doneBadgeEl = document.getElementById("done-badge")!;
+const btnViewing = document.getElementById("btn-viewing")!;
+const btnMarkDone = document.getElementById("btn-mark-done")!;
+
+/** URL of the current active tab (populated during loadStatus). */
+let currentPageUrl: string | null = null;
+
 // ─── Settings elements ──────────────────────────────────────────────────────
 const sheetNameInput = document.getElementById("sheet-name") as HTMLInputElement;
 const sheetList = document.getElementById("sheet-list") as HTMLDataListElement;
@@ -23,6 +32,12 @@ const sheetStatus = document.getElementById("sheet-status")!;
 const toggleSmart = document.getElementById("toggle-smart") as HTMLInputElement;
 const btnClearCache = document.getElementById("btn-clear-cache")!;
 const cacheStatus = document.getElementById("cache-status")!;
+const btnSyncSheets = document.getElementById("btn-sync-sheets")!;
+
+// ─── Sync cache elements ────────────────────────────────────────────────────
+const btnSync = document.getElementById("btn-sync")!;
+const syncIcon = document.getElementById("sync-icon")!;
+const syncText = document.getElementById("sync-text")!;
 
 // ─── View management ────────────────────────────────────────────────────────
 
@@ -76,10 +91,93 @@ async function loadStatus() {
       linkSheetEl.href = `https://docs.google.com/spreadsheets/d/${res.spreadsheetId}`;
     }
     showView("logged-in");
+
+    // Check if the current page is already saved and show appropriate actions
+    await checkPageStatus();
   } else {
     showView("logged-out");
   }
 }
+
+// ─── Page status check (saved-page actions) ────────────────────────────────
+
+async function checkPageStatus() {
+  try {
+    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.url) {
+      btnSave.classList.remove("hidden");
+      return;
+    }
+    currentPageUrl = tab.url;
+
+    const res = (await browser.runtime.sendMessage({
+      action: "getPageStatus",
+      url: tab.url,
+    })) as { found: boolean; status?: string };
+
+    if (!res.found) {
+      // Not saved yet — show the save button
+      btnSave.classList.remove("hidden");
+      return;
+    }
+
+    // Page is saved — show status-appropriate actions
+    const status = res.status ?? "Todo";
+    if (status === "Done") {
+      doneBadgeEl.classList.remove("hidden");
+    } else if (status === "In progress") {
+      savedActionsEl.classList.remove("hidden");
+      btnViewing.classList.add("hidden");
+    } else {
+      // "Todo" — show both buttons
+      savedActionsEl.classList.remove("hidden");
+    }
+  } catch {
+    // API error — fall back to showing save button
+    btnSave.classList.remove("hidden");
+  }
+}
+
+btnViewing.addEventListener("click", async () => {
+  if (!currentPageUrl) return;
+  btnViewing.textContent = "Updating…";
+  btnViewing.setAttribute("disabled", "true");
+  try {
+    await browser.runtime.sendMessage({
+      action: "updateStatus",
+      url: currentPageUrl,
+      status: "In progress",
+    });
+    btnViewing.classList.add("hidden");
+  } catch {
+    btnViewing.textContent = "Error";
+    setTimeout(() => {
+      btnViewing.textContent = "👁️ Viewing";
+      btnViewing.removeAttribute("disabled");
+    }, 1500);
+  }
+});
+
+btnMarkDone.addEventListener("click", async () => {
+  if (!currentPageUrl) return;
+  btnMarkDone.textContent = "Updating…";
+  btnMarkDone.setAttribute("disabled", "true");
+  try {
+    await browser.runtime.sendMessage({
+      action: "updateStatus",
+      url: currentPageUrl,
+      status: "Done",
+    });
+    savedActionsEl.classList.add("hidden");
+    doneBadgeEl.classList.remove("hidden");
+  } catch {
+    btnMarkDone.textContent = "Error";
+    setTimeout(() => {
+      btnMarkDone.textContent = "✓ Mark as Done";
+      btnMarkDone.removeAttribute("disabled");
+    }, 1500);
+  }
+});
 
 // ─── Login ──────────────────────────────────────────────────────────────────
 
@@ -115,9 +213,12 @@ btnSave.addEventListener("click", async () => {
     await browser.runtime.sendMessage({ action: "save" });
     btnSave.textContent = "Saved ✓";
     setTimeout(() => {
+      // Transition to saved-page actions (status is "Todo" after a fresh save)
+      btnSave.classList.add("hidden");
       btnSave.textContent = "Save Current Page";
       btnSave.removeAttribute("disabled");
-    }, 1500);
+      savedActionsEl.classList.remove("hidden");
+    }, 1000);
   } catch {
     btnSave.textContent = "Error";
     setTimeout(() => {
@@ -145,11 +246,17 @@ async function loadSettings() {
   sheetNameInput.value = data.sheetName ?? "Default";
   toggleSmart.checked = data.smartCategorization !== false;
 
-  // Populate sheet name dropdown with existing sheets
+  // Populate sheet name dropdown from cache (no API call)
+  await populateSheetList(false);
+}
+
+/** Populate the sheet datalist. If forceRefresh=true, fetches from API. */
+async function populateSheetList(forceRefresh: boolean) {
   try {
-    const res = (await browser.runtime.sendMessage({ action: "getSheets" })) as {
-      sheets: string[];
-    };
+    const res = (await browser.runtime.sendMessage({
+      action: "getSheets",
+      forceRefresh,
+    })) as { sheets: string[] };
     sheetList.innerHTML = "";
     for (const name of res.sheets) {
       const option = document.createElement("option");
@@ -175,6 +282,8 @@ btnSaveSheet.addEventListener("click", async () => {
       sheetName: name,
     });
     sheetStatus.textContent = `Sheet "${name}" is ready.`;
+    // Refresh sheet list cache since a new sheet may have been created
+    await populateSheetList(true);
   } catch (err) {
     sheetStatus.textContent = `Error: ${(err as Error).message}`;
   }
@@ -203,7 +312,53 @@ btnClearCache.addEventListener("click", async () => {
     cacheStatus.textContent = "";
   }, 3000);
 });
+btnSyncSheets.addEventListener("click", async () => {
+  btnSyncSheets.classList.add("animate-spin");
+  try {
+    await populateSheetList(true);
+  } finally {
+    btnSyncSheets.classList.remove("animate-spin");
+  }
+});
 
+// ─── Sync Cache button (main view) ─────────────────────────────────────────
+
+btnSync.addEventListener("click", async () => {
+  btnSync.setAttribute("disabled", "true");
+  btnSync.classList.add("opacity-60");
+  syncIcon.classList.add("animate-spin");
+  syncText.textContent = "Syncing…";
+  try {
+    const res = (await browser.runtime.sendMessage({ action: "syncCache" })) as {
+      success: boolean;
+      error?: string;
+    };
+    if (res.success) {
+      syncText.textContent = "Synced ✓";
+      // Re-check page status since cache may have changed
+      btnSave.classList.add("hidden");
+      savedActionsEl.classList.add("hidden");
+      doneBadgeEl.classList.add("hidden");
+      btnViewing.classList.remove("hidden");
+      btnViewing.textContent = "👁️ Viewing";
+      btnViewing.removeAttribute("disabled");
+      btnMarkDone.textContent = "✓ Mark as Done";
+      btnMarkDone.removeAttribute("disabled");
+      await checkPageStatus();
+    } else {
+      syncText.textContent = "Error";
+    }
+  } catch {
+    syncText.textContent = "Error";
+  } finally {
+    syncIcon.classList.remove("animate-spin");
+    btnSync.classList.remove("opacity-60");
+    btnSync.removeAttribute("disabled");
+    setTimeout(() => {
+      syncText.textContent = "Sync Cache";
+    }, 2000);
+  }
+});
 // ─── Init ───────────────────────────────────────────────────────────────────
 
 loadStatus();

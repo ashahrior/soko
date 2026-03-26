@@ -5,7 +5,7 @@ import { initSpreadsheet, getSheetName, ensureSheet } from "./spreadsheet-manage
 import { loadCache, syncCache, hasUrl, addUrl, clearCache } from "./cache-manager";
 import { categorize } from "./categorizer";
 import { registerContextMenu, onContextMenuClick } from "./context-menu";
-import { appendRow, getSheetNames, setDataValidation } from "./sheets-api";
+import { appendRow, getSheetNames, setDataValidation, findRowByUrl, updateRange, escapeSheetName } from "./sheets-api";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -88,14 +88,18 @@ async function handleSave(
 // ─── Peek Indicator (Badge) ─────────────────────────────────────────────────
 
 async function updateBadge(tabId: number, url?: string): Promise<void> {
-  if (url && hasUrl(url)) {
-    await browser.action.setBadgeText({ text: "✓", tabId });
-    await browser.action.setBadgeBackgroundColor({
-      color: "#4CAF50",
-      tabId,
-    });
-  } else {
-    await browser.action.setBadgeText({ text: "", tabId });
+  try {
+    if (url && hasUrl(url)) {
+      await browser.action.setBadgeText({ text: "✓", tabId });
+      await browser.action.setBadgeBackgroundColor({
+        color: "#4CAF50",
+        tabId,
+      });
+    } else {
+      await browser.action.setBadgeText({ text: "", tabId });
+    }
+  } catch {
+    // Tab may have been closed before the badge update could run — ignore
   }
 }
 
@@ -168,6 +172,16 @@ browser.runtime.onMessage.addListener(
             console.log("[knots] login: spreadsheet initialized");
             await syncCache();
             console.log("[knots] login: cache synced");
+            // Cache sheet names on first login
+            const stored = (await browser.storage.local.get("spreadsheetId")) as StorageSchema;
+            if (stored.spreadsheetId) {
+              const sheets = await import("./sheets-api").then((m) =>
+                m.getSheetNames(stored.spreadsheetId!),
+              );
+              await browser.storage.local.set({
+                cachedSheetNames: sheets.map((s) => s.title),
+              });
+            }
             return { success: true, email };
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
@@ -217,14 +231,70 @@ browser.runtime.onMessage.addListener(
 
       case "getSheets":
         return (async () => {
-          const stored = (await browser.storage.local.get(
+          const stored = (await browser.storage.local.get([
             "spreadsheetId",
-          )) as StorageSchema;
+            "cachedSheetNames",
+          ])) as StorageSchema;
           if (!stored.spreadsheetId) return { sheets: [] };
+
+          // Return cached list unless forceRefresh is requested
+          if (!message.forceRefresh && stored.cachedSheetNames?.length) {
+            return { sheets: stored.cachedSheetNames };
+          }
+
           const sheets = await import("./sheets-api").then((m) =>
             m.getSheetNames(stored.spreadsheetId!),
           );
-          return { sheets: sheets.map((s) => s.title) };
+          const names = sheets.map((s) => s.title);
+          await browser.storage.local.set({ cachedSheetNames: names });
+          return { sheets: names };
+        })();
+
+      case "getPageStatus":
+        return (async () => {
+          const stored = (await browser.storage.local.get(
+            "spreadsheetId",
+          )) as StorageSchema;
+          if (!stored.spreadsheetId) return { found: false };
+          const sheetName = await getSheetName();
+          const result = await findRowByUrl(
+            stored.spreadsheetId,
+            sheetName,
+            message.url,
+          );
+          if (!result) return { found: false };
+          return { found: true, status: result.status };
+        })();
+
+      case "updateStatus":
+        return (async () => {
+          const stored = (await browser.storage.local.get(
+            "spreadsheetId",
+          )) as StorageSchema;
+          if (!stored.spreadsheetId)
+            return { success: false, error: "Not signed in" };
+          const sheetName = await getSheetName();
+          const result = await findRowByUrl(
+            stored.spreadsheetId,
+            sheetName,
+            message.url,
+          );
+          if (!result)
+            return { success: false, error: "URL not found in sheet" };
+          const range = `'${escapeSheetName(sheetName)}'!F${result.rowNumber}`;
+          await updateRange(stored.spreadsheetId, range, [[message.status]]);
+          return { success: true };
+        })();
+
+      case "syncCache":
+        return (async () => {
+          try {
+            await syncCache();
+            return { success: true };
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            return { success: false, error: msg };
+          }
         })();
 
       default:

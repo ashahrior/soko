@@ -36,6 +36,22 @@ export interface EnsureSheetMessage {
 
 export interface GetSheetsMessage {
   action: "getSheets";
+  forceRefresh?: boolean;
+}
+
+export interface GetPageStatusMessage {
+  action: "getPageStatus";
+  url: string;
+}
+
+export interface UpdateStatusMessage {
+  action: "updateStatus";
+  url: string;
+  status: string;
+}
+
+export interface SyncCacheMessage {
+  action: "syncCache";
 }
 
 export type ExtensionMessage =
@@ -46,7 +62,10 @@ export type ExtensionMessage =
   | GetStatusMessage
   | ClearCacheMessage
   | EnsureSheetMessage
-  | GetSheetsMessage;
+  | GetSheetsMessage
+  | GetPageStatusMessage
+  | UpdateStatusMessage
+  | SyncCacheMessage;
 
 /** Shape of per-sheet URL cache stored in chrome.storage.local */
 export interface StorageSchema {
@@ -58,6 +77,8 @@ export interface StorageSchema {
   sheetName?: string;
   smartCategorization?: boolean;
   urlCache?: string[];
+  /** Cached list of sheet tab names */
+  cachedSheetNames?: string[];
 }
 
 /** A single row destined for the spreadsheet */
