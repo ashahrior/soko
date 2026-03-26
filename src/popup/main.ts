@@ -152,7 +152,7 @@ btnViewing.addEventListener("click", async () => {
   } catch {
     btnViewing.textContent = "Error";
     setTimeout(() => {
-      btnViewing.textContent = "👁️ Viewing";
+      btnViewing.textContent = "Viewing";
       btnViewing.removeAttribute("disabled");
     }, 1500);
   }
@@ -173,7 +173,7 @@ btnMarkDone.addEventListener("click", async () => {
   } catch {
     btnMarkDone.textContent = "Error";
     setTimeout(() => {
-      btnMarkDone.textContent = "✓ Mark as Done";
+      btnMarkDone.textContent = "Done";
       btnMarkDone.removeAttribute("disabled");
     }, 1500);
   }
@@ -340,9 +340,9 @@ btnSync.addEventListener("click", async () => {
       savedActionsEl.classList.add("hidden");
       doneBadgeEl.classList.add("hidden");
       btnViewing.classList.remove("hidden");
-      btnViewing.textContent = "👁️ Viewing";
+      btnViewing.textContent = "Viewing";
       btnViewing.removeAttribute("disabled");
-      btnMarkDone.textContent = "✓ Mark as Done";
+      btnMarkDone.textContent = "Done";
       btnMarkDone.removeAttribute("disabled");
       await checkPageStatus();
     } else {
@@ -355,7 +355,7 @@ btnSync.addEventListener("click", async () => {
     btnSync.classList.remove("opacity-60");
     btnSync.removeAttribute("disabled");
     setTimeout(() => {
-      syncText.textContent = "Sync Cache";
+      syncText.textContent = "Sync";
     }, 2000);
   }
 });
