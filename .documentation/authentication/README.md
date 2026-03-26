@@ -75,6 +75,11 @@ Key characteristics:
 | `accessToken` | `string` | Current OAuth access token |
 | `tokenExpiresAt` | `number` | Unix timestamp (ms) when token expires |
 | `userEmail` | `string` | User's Google email address |
+| `spreadsheetId` | `string` | ID of the Knots Sheets spreadsheet |
+| `sheetName` | `string` | Current target sheet tab name |
+| `smartCategorization` | `boolean` | Whether smart categorization is enabled |
+| `urlCache` | `string[]` | Serialized URL cache array |
+| `cachedSheetNames` | `string[]` | Cached list of sheet tab names (avoids extra API calls) |
 
 ## Key Functions (in `auth.ts`)
 
@@ -106,14 +111,16 @@ Full interactive login:
 
 ### `logout()`
 Complete session teardown:
-1. POST to Google's token revoke endpoint (best-effort)
-2. Chrome: `removeCachedAuthToken()` to clear Chrome's internal cache
-3. Remove **all 7 storage keys**: `accessToken`, `tokenExpiresAt`, `userEmail`, `spreadsheetId`, `urlCache`, `sheetName`, `smartCategorization`
+1. Chrome: `removeCachedAuthToken()` to clear Chrome's internal cache (so next `getAuthToken()` issues a fresh one)
+2. Remove **6 storage keys**: `accessToken`, `tokenExpiresAt`, `userEmail`, `urlCache`, `sheetName`, `smartCategorization`
+   - **Intentionally preserved:** `spreadsheetId` and `cachedSheetNames` — so re-login reconnects to the same spreadsheet instead of creating a new one
+
+> **Note:** The OAuth token is NOT revoked server-side. This is intentional — revoking would remove the `drive.file` per-file authorization, causing re-login to create a duplicate spreadsheet instead of reconnecting to the existing one. The token expires naturally (~1 hour).
 
 ## Security Considerations
 
 1. **Token scope minimization** — Only `spreadsheets` and `drive.file` scopes are requested. `drive.file` limits access to files the extension created.
-2. **Token revocation on logout** — Actively revokes the token server-side, not just deleting locally.
+2. **Token not revoked on logout** — Intentional: preserves `drive.file` per-file authorization so re-login reconnects to the existing spreadsheet. Tokens expire naturally (~1 hour).
 3. **Expiry buffer** — 5-minute buffer prevents using tokens that are about to expire mid-request.
 4. **No refresh tokens** — Implicit flow doesn't issue refresh tokens. Chrome's `getAuthToken` handles refresh internally; Firefox requires re-auth when tokens expire.
 5. **No cookies or sessions** — The extension uses token-based auth exclusively. No cookies are set or read. Session state is maintained entirely in `chrome.storage.local`.

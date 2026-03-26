@@ -68,11 +68,21 @@ Body: { values: [values] }
 
 #### `updateRange(ssId, range, values: string[][]): void`
 
-Writes data to a specific range. Used for writing the header row (`A1:F1`) on new sheets.
+Writes data to a specific range. Used for writing the header row (`A1:F1`) on new sheets and for updating individual cell values (e.g. Status column updates via `updateStatus`).
 
 ```
 PUT /v4/spreadsheets/{ssId}/values/{range}?valueInputOption=USER_ENTERED
 ```
+
+#### `findRowByUrl(ssId, sheet, url): Promise<{ rowNumber, status } | null>`
+
+Searches Column C for a matching URL and returns its 1-based row number and current Status value (Column F). Used by the `getPageStatus` message handler to check if the current page is saved and what its status is.
+
+```
+GET /v4/spreadsheets/{ssId}/values/{range}  (reads C:F)
+```
+
+Returns `null` if the URL is not found. Skips the header row.
 
 #### `readColumn(ssId, sheet, column): Promise<string[]>`
 
@@ -90,6 +100,34 @@ Sets a dropdown validation rule on a column (starting at row 2). Used for the "S
 POST /v4/spreadsheets/{ssId}:batchUpdate
 Body: { requests: [{ setDataValidation: { range, rule } }] }
 ```
+
+#### `setupNewSheetFormatting(ssId, sheetId, statusColumnIndex, statusOptions): void`
+
+Sets up all formatting for a new sheet in a **single** `batchUpdate` call: header formatting (bold white text on dark blue, frozen row), data validation dropdown, and conditional formatting (row colours based on Status). Replaces what would otherwise be 3 separate API calls.
+
+```
+POST /v4/spreadsheets/{ssId}:batchUpdate
+Body: { requests: [...headerFormat, ...dataValidation, ...conditionalFormat] }
+```
+
+This is the preferred function for new sheet setup. The individual functions (`formatHeaderRow`, `setDataValidation`, `setConditionalFormatting`) are still exported for standalone use.
+
+#### `formatHeaderRow(ssId, sheetId): void`
+
+Formats the header row: bold white text on dark blue background, frozen first row.
+
+```
+POST /v4/spreadsheets/{ssId}:batchUpdate
+```
+
+#### `setConditionalFormatting(ssId, sheetId, statusColumnIndex, statusOptions): void`
+
+Adds conditional formatting rules for the Status column. Idempotent — deletes any existing conditional format rules on the sheet first, then adds:
+- "Todo" → light grey row background
+- "In progress" → light red row background
+- "Done" → light green row background
+
+Colours are applied to columns A through Status (A–F).
 
 ## Helper Functions
 
@@ -130,13 +168,15 @@ Orchestrates the sheets-api functions for higher-level operations:
 | Function | Purpose |
 |---|---|
 | `getSheetName()` | Read target sheet name from storage (default: `"Default"`) |
-| `initSpreadsheet()` | Find-or-create the "Knots Sheets" spreadsheet, ensure sheet exists |
-| `ensureSheet(ssId, name)` | Create sheet tab + header + validation if it doesn't exist |
+| `initSpreadsheet()` | Find-or-create the "Knots Sheets" spreadsheet, ensure sheet exists. Returns `{ spreadsheetId, sheetNames }` so callers can cache sheet names without an extra API call. |
+| `ensureSheet(ssId, name)` | Create sheet tab + header + full formatting if it doesn't exist. Returns `string[]` of all sheet names (for caching). |
 
 ### `initSpreadsheet()` Flow
 
 ```
-1. Already have spreadsheetId? → ensureSheet() → return
+1. Already have spreadsheetId? → ensureSheet() → return { spreadsheetId, sheetNames }
 2. searchDriveFile("Knots Sheets") → found? → store ID → ensureSheet() → return
-3. createSpreadsheet("Knots Sheets", sheetName) → store ID → writeHeader → setValidation → return
+3. createSpreadsheet("Knots Sheets", sheetName) → store ID → writeHeader → setupNewSheetFormatting() → return { spreadsheetId, sheetNames }
 ```
+
+If a stored spreadsheetId exists but the spreadsheet is inaccessible (deleted), the stale ID is cleared and the flow falls through to search/create.

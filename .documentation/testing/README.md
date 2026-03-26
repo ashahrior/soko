@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tests use **Vitest** with a custom mock for `webextension-polyfill`. The test suite currently has **30 tests** across 5 test files.
+Tests use **Vitest** with a custom mock for `webextension-polyfill`. The test suite currently has **37 tests** across 5 test files.
 
 ## Configuration
 
@@ -58,9 +58,9 @@ __setStorage({ spreadsheetId: "abc123", sheetName: "Default" });
 
 ## Test Files
 
-### `tests/categorizer.test.ts` (10 tests)
+### `tests/categorizer.test.ts` (15 tests)
 
-Tests the pure `categorize()` function. No mocking needed — verifies domain-to-category mapping.
+Tests the pure `categorize()` function and the `DOMAIN_CATEGORY_MAP` lookup table. No mocking needed — verifies domain-to-category mapping across all supported categories.
 
 ```
 ✓ YouTube → Video
@@ -82,7 +82,7 @@ Tests the URL cache lifecycle. Uses `__setStorage` / `__resetStorage` for state 
 ✓ syncCache() rebuilds from spreadsheet
 ```
 
-### `tests/spreadsheet-manager.test.ts` (7 tests)
+### `tests/spreadsheet-manager.test.ts` (9 tests)
 
 Tests spreadsheet initialization and sheet creation. Uses `vi.mock("../src/background/sheets-api")` with the `importOriginal` pattern:
 

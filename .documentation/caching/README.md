@@ -41,9 +41,10 @@ browser.runtime.onStartup  → loadCache()
 
 Full re-sync from the Google Spreadsheet. Reads **Column C** (the "Link" column) from the active sheet using `readColumn()`, then replaces the entire in-memory Set and persists.
 
-Called in two scenarios:
+Called in three scenarios:
 1. **After login** — `login() → initSpreadsheet() → syncCache()`  
 2. **After "Clear Cache"** in the options page — the user triggers a manual resync
+3. **Popup "Sync" button** — user clicks the Sync button on the main popup view to refresh the cache on demand
 
 This is intentionally **not** called on every startup to avoid unnecessary API calls.
 
@@ -72,6 +73,10 @@ Browser Startup
 Every Save
   └── hasUrl(url) ← duplicate check
   └── addUrl(url) ← if save succeeded
+
+Popup: "Sync" button
+  └── syncCache() ← full rebuild from Sheet
+  └── re-checks page status afterwards
 
 Options: "Clear Cache"
   └── clearCache() ← wipe

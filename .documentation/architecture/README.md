@@ -52,13 +52,21 @@ The *only* context with full API access. Runs as an event-driven service worker 
 | `spreadsheet-manager.ts` | Spreadsheet initialization, sheet creation, header/validation setup |
 | `cache-manager.ts` | In-memory `Set<string>` URL cache with `chrome.storage.local` persistence |
 | `categorizer.ts` | Pure function mapping domain → content type (Video, Article, Code, etc.) |
+| `domain-categories.ts` | Domain → category lookup table (imported by `categorizer.ts`) |
 | `context-menu.ts` | Right-click "Knots: Save Note" registration and handler |
 
 ### 2. Popup (`src/popup/`)
 
 Minimal UI shown when clicking the toolbar icon. Communicates with the background via `browser.runtime.sendMessage()`. Never calls Google APIs directly.
 
-**States:** Logged-out (sign-in button) → Logged-in (save button, spreadsheet link, logout).
+**States:** Logged-out (sign-in button) → Logged-in (save button or saved-page actions, spreadsheet link, sync, settings panel, logout).
+
+When viewing a previously saved page, the popup shows status-aware action buttons instead of the save button:
+- **"Viewing"** — marks the page as "In progress" in the spreadsheet
+- **"Done"** — marks the page as "Done"
+- If the page is already "Done", a static badge is shown
+
+The popup also includes an inline **Settings** panel (sheet name selection with datalist, smart categorization toggle, cache clear) and a **Sync** button to refresh the URL cache from the spreadsheet.
 
 ### 3. Options Page (`src/options/`)
 
@@ -82,6 +90,7 @@ index.ts
   │     ├── sheets-api.ts (readColumn for sync)
   │     └── spreadsheet-manager.ts (getSheetName)
   ├── categorizer.ts (pure, no deps)
+  │     └── domain-categories.ts (data)
   └── context-menu.ts
         └── (browser.contextMenus)
 ```

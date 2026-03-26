@@ -67,14 +67,18 @@ initSpreadsheet()
   1. Check storage for existing spreadsheetId
   2. If none: searchDriveFile("Knots Sheets") via Drive API
   3. If none found: createSpreadsheet("Knots Sheets", "Default") via Sheets API
-  4. ensureSheet() → write header row + set status validation
+  4. ensureSheet() → write header row + setupNewSheetFormatting()
   5. Store spreadsheetId
+  6. Returns { spreadsheetId, sheetNames }
                   │
                   ▼
 syncCache()
   1. readColumn(spreadsheetId, sheetName, "C") — fetch all URLs
   2. Rebuild urlSet = new Set(urls)
   3. Persist to storage as string[]
+                  │
+                  ▼
+Cache sheet names in chrome.storage.local (cachedSheetNames)
                   │
                   ▼
 Return { success: true, email } → Popup shows logged-in view
@@ -88,11 +92,12 @@ Popup sends { action: "logout" }
                   ▼
 Background: logout()
   1. Read accessToken from storage
-  2. POST to Google token revoke endpoint (best-effort, catch errors)
-  3. Chrome only: chrome.identity.removeCachedAuthToken()
-  4. Remove ALL storage keys:
+  2. Chrome only: chrome.identity.removeCachedAuthToken()
+  3. Remove auth/settings storage keys:
      accessToken, tokenExpiresAt, userEmail,
-     spreadsheetId, urlCache, sheetName, smartCategorization
+     urlCache, sheetName, smartCategorization
+     (spreadsheetId and cachedSheetNames are intentionally preserved
+      so re-login reconnects to the same spreadsheet)
                   │
                   ▼
 Popup switches to logged-out view
@@ -115,14 +120,107 @@ The badge is updated on:
 - `browser.tabs.onUpdated` with `changeInfo.status === "complete"` — page finishes loading
 - After a successful save — immediately reflects the new state
 
-## 6. Message Flow Summary
+## 6. Page Status Tracking
+
+When the popup opens on a page that has already been saved, it shows status-aware action buttons instead of the save button.
+
+```
+Popup opens → loadStatus() → checkPageStatus()
+                  │
+                  ▼
+Popup sends { action: "getPageStatus", url: tab.url }
+                  │
+                  ▼
+Background: getSheetName() → findRowByUrl(ssId, sheet, url)
+  → Reads columns C:F, scans for matching URL
+  → Returns { found: true, status: "Todo" | "In progress" | "Done" }
+     or { found: false }
+                  │
+                  ▼
+Popup renders based on status:
+  • Not found → Show save button
+  • "Todo"         → Show "Viewing" + "Done" buttons
+  • "In progress"  → Show "Done" button only
+  • "Done"         → Show static "Done" badge
+```
+
+### Updating Status
+
+```
+User clicks "Viewing" or "Done"
+                  │
+                  ▼
+Popup sends { action: "updateStatus", url, status: "In progress" | "Done" }
+                  │
+                  ▼
+Background:
+  1. findRowByUrl(ssId, sheetName, url) → get row number
+  2. updateRange(ssId, "'Sheet'!F{row}", [[newStatus]])
+                  │
+                  ▼
+Popup updates UI (hides/shows buttons accordingly)
+```
+
+## 7. Sync Cache (from popup)
+
+```
+User clicks "Sync" button in popup
+                  │
+                  ▼
+Popup sends { action: "syncCache" }
+                  │
+                  ▼
+Background: syncCache()
+  1. readColumn(spreadsheetId, sheetName, "C") — fetch all URLs
+  2. Rebuild urlSet = new Set(urls)
+  3. Persist to storage as string[]
+                  │
+                  ▼
+Return { success: true } → Popup re-checks page status
+```
+
+## 8. Sheet Name Management
+
+```
+Popup settings: user selects/types a sheet name → clicks "Save"
+                  │
+                  ▼
+Popup sends { action: "ensureSheet", sheetName }
+                  │
+                  ▼
+Background:
+  1. ensureSheet(ssId, name) → creates sheet tab + formatting if needed
+  2. Store sheetName in chrome.storage.local
+                  │
+                  ▼
+Popup refreshes sheet list: sends { action: "getSheets", forceRefresh: true }
+```
+
+### Sheet List Caching
+
+```
+Popup sends { action: "getSheets", forceRefresh? }
+                  │
+                  ▼
+Background:
+  • If !forceRefresh && cachedSheetNames exist → return cached
+  • Else: getSheetNames(ssId) → store in cachedSheetNames → return
+```
+
+Sheet names are also cached during login (from `initSpreadsheet()` return value).
+
+## 9. Message Flow Summary
 
 | Sender | Message | Background Handler | Side Effects |
 |---|---|---|---|
 | Popup | `{ action: "save" }` | `handleSave(tab)` | Sheet append, cache update, toast, badge |
-| Popup | `{ action: "login" }` | `login() + initSpreadsheet() + syncCache()` | Token storage, spreadsheet init |
+| Popup | `{ action: "login" }` | `login() + initSpreadsheet() + syncCache()` | Token storage, spreadsheet init, cache sheet names |
 | Popup | `{ action: "logout" }` | `logout()` | Token revoke, storage wipe |
 | Popup | `{ action: "getStatus" }` | Read storage + `isTokenValid()` | Returns `{ loggedIn, email, spreadsheetId }` |
+| Popup | `{ action: "getPageStatus", url }` | `findRowByUrl()` | Returns `{ found, status }` |
+| Popup | `{ action: "updateStatus", url, status }` | `findRowByUrl()` + `updateRange()` | Writes status to column F |
+| Popup | `{ action: "syncCache" }` | `syncCache()` | Rebuilds URL cache from spreadsheet |
+| Popup | `{ action: "getSheets", forceRefresh? }` | Read cached or `getSheetNames()` | Returns `{ sheets: string[] }` |
+| Popup | `{ action: "ensureSheet", sheetName }` | `ensureSheet()` + store name | Create sheet tab if needed |
 | Options | `{ action: "clearCache" }` | `clearCache()` | Wipe urlSet + storage |
-| Options | `{ action: "ensureSheet", sheetName }` | `ensureSheet()` + store name | Create sheet tab if needed |
 | Background → Content | `{ action: "showToast", message }` | N/A (content script receives) | DOM injection |

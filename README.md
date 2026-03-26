@@ -26,7 +26,9 @@ Knots is a browser extension that saves any webpage to a dedicated Google Spread
 - **Smart Categorization** — Automatically detects content type (Video, Article, Code, Q&A, Forum) based on the domain
 - **Duplicate Detection** — Instant client-side URL cache prevents saving the same page twice
 - **Peek Indicator** — Green ✓ badge on the toolbar icon when you visit an already-saved page
-- **Status Tracking** — Each saved entry has a status column (Todo / In progress / Done) with dropdown validation
+- **Status Tracking** — Each saved entry has a status column (Todo / In progress / Done) with dropdown validation and conditional row colouring
+- **Page Status Actions** — When visiting a saved page, the popup shows "Viewing" (marks In progress) and "Done" buttons instead of the save button
+- **Inline Settings** — Sheet name selection (with datalist), smart categorization toggle, and cache management directly in the popup
 - **Cross-Browser** — Works on both Chrome and Firefox (Manifest V3)
 
 ## How It Works
@@ -97,10 +99,13 @@ npm run build:firefox   # → dist-firefox/
 | **Sign in** | Click Knots icon → **Sign in with Google** |
 | **Save a page** | Click Knots icon → **Save Current Page** |
 | **Save with notes** | Select text → right-click → **Knots: Save Note** |
-| **View spreadsheet** | Click Knots icon → **Open Knots Spreadsheet ↗** |
-| **Change target sheet** | Right-click icon → **Options** → set sheet name |
-| **Toggle categorization** | Options page → **Smart Categorization** toggle |
-| **Clear local cache** | Options page → **Clear Local Cache** |
+| **Mark as viewing** | Visit a saved page → click **Viewing** (sets status to "In progress") |
+| **Mark as done** | Visit a saved page → click **Done** (sets status to "Done") |
+| **Sync cache** | Click Knots icon → **Sync** button (refreshes URL cache from spreadsheet) |
+| **View spreadsheet** | Click Knots icon → **Open Spreadsheet ↗** |
+| **Change target sheet** | Click Knots icon → ⚙ Settings → set sheet name |
+| **Toggle categorization** | ⚙ Settings → **Smart Categorization** toggle |
+| **Clear local cache** | ⚙ Settings → **Clear Local Cache** |
 | **Sign out** | Click Knots icon → **Logout** |
 
 ## Tech Stack
@@ -111,7 +116,7 @@ npm run build:firefox   # → dist-firefox/
 | **Build** | Vite 8 + `vite-plugin-web-extension` |
 | **Styling** | Tailwind CSS v4 |
 | **Browser APIs** | `webextension-polyfill` |
-| **Testing** | Vitest (30 tests) |
+| **Testing** | Vitest (37 tests) |
 | **APIs** | Google Sheets v4 + Google Drive v3 (direct REST, no client libraries) |
 
 ## Project Structure

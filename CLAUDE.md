@@ -24,12 +24,13 @@ src/
 │   ├── spreadsheet-manager.ts  # Spreadsheet init, sheet creation, header/validation setup
 │   ├── cache-manager.ts  # In-memory Set<string> URL cache with storage persistence
 │   ├── categorizer.ts    # Domain → content type mapping (pure function)
+│   ├── domain-categories.ts  # Domain → category lookup table used by categorizer
 │   └── context-menu.ts   # Right-click "Save Note" context menu registration
 ├── content/
 │   └── toast.ts          # Content script — shows toast notifications on pages
 ├── popup/
 │   ├── index.html        # Extension popup UI
-│   ├── main.ts           # Popup logic (login/save/logout)
+│   ├── main.ts           # Popup logic (login/save/status tracking/settings/logout)
 │   └── style.css         # Tailwind entry
 ├── options/
 │   ├── index.html        # Settings page
@@ -92,9 +93,19 @@ npx tsc --noEmit
 3. If new: categorize URL → build row → `appendRow()` to Google Sheets → update cache → send toast
 4. If duplicate: send "Already saved" toast
 
+### Page Status Tracking
+- Popup checks if the current page is already saved via `getPageStatus` (calls `findRowByUrl()` in sheets-api)
+- If saved, shows "Viewing" (marks as "In progress") and "Done" action buttons instead of the save button
+- Status updates write directly to the Status column (F) via `updateStatus` → `updateRange()`
+
+### Sheet Name Caching
+- Sheet tab names are cached in `chrome.storage.local` under `cachedSheetNames`
+- Populated during login (from `initSpreadsheet()`) and refreshed on demand via `getSheets` with `forceRefresh`
+- Used by the popup's settings panel to populate a datalist for sheet name selection
+
 ### URL Cache
 - `Set<string>` in memory, serialized as `string[]` in `chrome.storage.local`
-- Full sync from spreadsheet Column C on install and manual "Clear Cache"
+- Full sync from spreadsheet Column C on install, manual "Clear Cache", or popup "Sync" button
 - Instant O(1) duplicate lookups without API calls
 
 ### Manifest Path Convention

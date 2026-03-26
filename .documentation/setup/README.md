@@ -81,10 +81,11 @@ src/
 │   ├── spreadsheet-manager.ts  # Spreadsheet init, sheet creation
 │   ├── cache-manager.ts  # URL cache (in-memory Set + storage)
 │   ├── categorizer.ts    # URL → content type mapping
+│   ├── domain-categories.ts  # Domain → category lookup table
 │   └── context-menu.ts   # Right-click menu registration
 ├── content/
 │   └── toast.ts          # Toast notifications (injected into pages)
-├── popup/                # Toolbar popup UI (login, save, logout)
+├── popup/                # Toolbar popup UI (login, save, status tracking, settings, logout)
 ├── options/              # Settings page (sheet name, toggles)
 ├── shared/
 │   └── types.ts          # Shared TypeScript types
